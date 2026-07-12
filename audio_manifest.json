@@ -1,0 +1,107 @@
+[
+  {
+    "hanzi": "狗",
+    "pinyin": "gǒu",
+    "thai": "สุนัข",
+    "emoji": "🐶",
+    "audio": "01_gou.mp3"
+  },
+  {
+    "hanzi": "猫",
+    "pinyin": "māo",
+    "thai": "แมว",
+    "emoji": "🐱",
+    "audio": "02_mao.mp3"
+  },
+  {
+    "hanzi": "鸟",
+    "pinyin": "niǎo",
+    "thai": "นก",
+    "emoji": "🐦",
+    "audio": "03_niao.mp3"
+  },
+  {
+    "hanzi": "鱼",
+    "pinyin": "yú",
+    "thai": "ปลา",
+    "emoji": "🐟",
+    "audio": "04_yu.mp3"
+  },
+  {
+    "hanzi": "兔子",
+    "pinyin": "tùzi",
+    "thai": "กระต่าย",
+    "emoji": "🐰",
+    "audio": "05_tuzi.mp3"
+  },
+  {
+    "hanzi": "虫",
+    "pinyin": "chóng",
+    "thai": "แมลง",
+    "emoji": "🐛",
+    "audio": "06_chong.mp3"
+  },
+  {
+    "hanzi": "老师",
+    "pinyin": "lǎoshī",
+    "thai": "คุณครู",
+    "emoji": "👩‍🏫",
+    "audio": "07_laoshi.mp3"
+  },
+  {
+    "hanzi": "学生",
+    "pinyin": "xuésheng",
+    "thai": "นักเรียน",
+    "emoji": "🧑‍🎓",
+    "audio": "08_xuesheng.mp3"
+  },
+  {
+    "hanzi": "姐姐",
+    "pinyin": "jiějie",
+    "thai": "พี่สาว",
+    "emoji": "👧",
+    "audio": "09_jiejie.mp3"
+  },
+  {
+    "hanzi": "妹妹",
+    "pinyin": "mèimei",
+    "thai": "น้องสาว",
+    "emoji": "👧🏻",
+    "audio": "10_meimei.mp3"
+  },
+  {
+    "hanzi": "我",
+    "pinyin": "wǒ",
+    "thai": "ฉัน",
+    "emoji": "🙋",
+    "audio": "11_wo.mp3"
+  },
+  {
+    "hanzi": "你",
+    "pinyin": "nǐ",
+    "thai": "คุณ / เธอ",
+    "emoji": "👉",
+    "audio": "12_ni.mp3"
+  },
+  {
+    "hanzi": "他",
+    "pinyin": "tā",
+    "thai": "เขา (ผู้ชาย)",
+    "emoji": "👦",
+    "audio": "13_ta_male.mp3"
+  },
+  {
+    "hanzi": "她",
+    "pinyin": "tā",
+    "thai": "เขา (ผู้หญิง)",
+    "emoji": "👩",
+    "audio": "14_ta_female.mp3"
+  },
+  {
+    "hanzi": "谁",
+    "pinyin": "shéi",
+    "thai": "ใคร",
+    "emoji": "❓",
+    "audio": "15_shei.mp3"
+  }
+]

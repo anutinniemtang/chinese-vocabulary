@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chinese P.1 — 17 Words</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Thai","Noto Sans SC",sans-serif;background:#f7fbff;color:#17324d}
+main{max-width:1100px;margin:auto;padding:20px}h1,p{text-align:center}
+.toolbar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0}
+button{font:inherit}.toolbar button{border:0;border-radius:999px;padding:10px 14px;background:white;box-shadow:0 6px 18px #0002;font-weight:700}
+#status{text-align:center;min-height:24px;margin-bottom:10px;font-weight:700;color:#557}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.card{position:relative;border:2px solid #dce9f4;border-radius:20px;background:white;min-height:220px;padding:16px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 20px #0001;cursor:pointer}
+.card.playing{border-color:#4f9df7;box-shadow:0 0 0 5px #4f9df733}
+.num{position:absolute;top:8px;left:8px;background:#2f8f5b;color:white;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:900}
+.emoji{font-size:54px}.hanzi{font-size:42px;font-weight:900}.pinyin{font-size:22px;color:#168a47;font-weight:900}.thai{font-size:17px;font-weight:700}.sound{margin-top:10px;background:#eef7ff;padding:6px 9px;border-radius:999px;font-size:12px}
+@media(max-width:850px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.grid{grid-template-columns:repeat(2,1fr);gap:9px}.card{min-height:200px}}
+</style>
+</head>
+<body><main>
+<h1>🇨🇳 Chinese P.1 Click & Sound</h1>
+<p>ครบ 17 คำตาม Excel</p>
+<div class="toolbar"><button id="random">🎲 สุ่มคำ</button><button id="toggle">🙈 ซ่อน/แสดง Pinyin</button><button id="stop">⏹ หยุดเสียง</button></div>
+<div id="status">แตะการ์ดเพื่อฟังเสียง</div>
+<div class="grid" id="grid"></div><audio id="player"></audio>
+<script>
+const cards=[{"hanzi": "狗", "pinyin": "gǒu", "thai": "สุนัข", "emoji": "🐶", "audio": "01_gou.mp3"}, {"hanzi": "猫", "pinyin": "māo", "thai": "แมว", "emoji": "🐱", "audio": "02_mao.mp3"}, {"hanzi": "鸟", "pinyin": "niǎo", "thai": "นก", "emoji": "🐦", "audio": "03_niao.mp3"}, {"hanzi": "鱼", "pinyin": "yú", "thai": "ปลา", "emoji": "🐟", "audio": "04_yu.mp3"}, {"hanzi": "兔子", "pinyin": "tùzi", "thai": "กระต่าย", "emoji": "🐰", "audio": "05_tuzi.mp3"}, {"hanzi": "虫", "pinyin": "chóng", "thai": "แมลง", "emoji": "🐛", "audio": "06_chong.mp3"}, {"hanzi": "这", "pinyin": "zhè", "thai": "นี่", "emoji": "👇", "audio": "07_zhe.mp3"}, {"hanzi": "那", "pinyin": "nà", "thai": "นั่น", "emoji": "👉", "audio": "08_na.mp3"}, {"hanzi": "姐姐", "pinyin": "jiějie", "thai": "พี่สาว", "emoji": "👧", "audio": "09_jiejie.mp3"}, {"hanzi": "妹妹", "pinyin": "mèimei", "thai": "น้องสาว", "emoji": "👧🏻", "audio": "10_meimei.mp3"}, {"hanzi": "老师", "pinyin": "lǎoshī", "thai": "คุณครู", "emoji": "👩‍🏫", "audio": "11_laoshi.mp3"}, {"hanzi": "学生", "pinyin": "xuésheng", "thai": "นักเรียน", "emoji": "🧑‍🎓", "audio": "12_xuesheng.mp3"}, {"hanzi": "我", "pinyin": "wǒ", "thai": "ฉัน", "emoji": "🙋", "audio": "13_wo.mp3"}, {"hanzi": "你", "pinyin": "nǐ", "thai": "คุณ / เธอ", "emoji": "🫵", "audio": "14_ni.mp3"}, {"hanzi": "他", "pinyin": "tā", "thai": "เขา (ผู้ชาย)", "emoji": "👦", "audio": "15_ta_male.mp3"}, {"hanzi": "她", "pinyin": "tā", "thai": "เขา (ผู้หญิง)", "emoji": "👩", "audio": "16_ta_female.mp3"}, {"hanzi": "谁", "pinyin": "shéi", "thai": "ใคร", "emoji": "❓", "audio": "17_shei.mp3"}];
+const grid=document.getElementById('grid'),player=document.getElementById('player'),statusEl=document.getElementById('status');
+grid.innerHTML=cards.map((c,i)=>`<button class="card" data-audio="audio/${c.audio}" data-hanzi="${c.hanzi}"><span class="num">${i+1}</span><span class="emoji">${c.emoji}</span><span class="hanzi">${c.hanzi}</span><span class="pinyin">${c.pinyin}</span><span class="thai">${c.thai}</span><span class="sound">🔊 แตะเพื่อฟัง</span></button>`).join('');
+const els=[...document.querySelectorAll('.card')];
+function clear(){els.forEach(x=>x.classList.remove('playing'))}
+async function playCard(c){clear();c.classList.add('playing');player.src=c.dataset.audio;statusEl.textContent='กำลังเล่น: '+c.dataset.hanzi;try{await player.play()}catch(e){clear();statusEl.textContent='ไม่พบไฟล์: '+c.dataset.audio}}
+els.forEach(c=>c.onclick=()=>playCard(c));
+player.onended=()=>{clear();statusEl.textContent='เลือกคำต่อไปได้เลย'};
+document.getElementById('stop').onclick=()=>{player.pause();player.currentTime=0;clear();statusEl.textContent='หยุดเสียงแล้ว'};
+document.getElementById('random').onclick=()=>playCard(els[Math.floor(Math.random()*els.length)]);
+document.getElementById('toggle').onclick=()=>document.querySelectorAll('.pinyin').forEach(x=>x.style.visibility=x.style.visibility==='hidden'?'visible':'hidden');
+</script></main></body></html>
