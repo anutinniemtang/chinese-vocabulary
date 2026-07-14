@@ -19,22 +19,25 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0}
+    html,body{min-height:100%;margin:0}
+    html{overflow-y:auto}
     body{
       font-family:"Noto Sans Thai","Tahoma",sans-serif;
       background:linear-gradient(135deg,var(--bg1),var(--bg2));
       color:var(--ink);
       display:flex;
       justify-content:center;
-      align-items:center;
+      align-items:flex-start;
       padding:18px;
-      overflow:hidden;
-      touch-action:none;
+      overflow-x:hidden;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      touch-action:pan-y;
     }
 
     .game{
       width:min(920px,100%);
-      min-height:min(690px,96vh);
+      min-height:min(690px,96dvh);
       background:rgba(255,255,255,.92);
       border:3px solid rgba(255,255,255,.9);
       border-radius:32px;
@@ -43,7 +46,7 @@
       display:flex;
       flex-direction:column;
       position:relative;
-      overflow:hidden;
+      overflow:visible;
     }
 
     .topbar{
@@ -237,6 +240,18 @@
       justify-content:center;
       gap:12px;
       margin-top:4px;
+      padding-bottom:max(8px, env(safe-area-inset-bottom));
+    }
+
+    #musicBtn{
+      position:fixed;
+      right:max(14px, env(safe-area-inset-right));
+      top:max(14px, env(safe-area-inset-top));
+      z-index:500;
+      width:54px !important;
+      height:54px !important;
+      box-shadow:0 8px 20px rgba(30,55,90,.22);
+      background:#fff;
     }
 
     button{
@@ -314,17 +329,77 @@
     }
 
     @media (max-width:650px){
-      body{padding:0}
-      .game{min-height:100vh;border-radius:0;padding:18px 14px}
-      .topbar{align-items:flex-start}
-      .progress{min-width:105px;font-size:16px}
-      .mascot{min-height:100px}
-      .face{font-size:56px}
-      .speech{padding:12px 14px}
-      .labels,.slots{gap:8px}
-      .slot{min-height:88px;border-radius:16px}
-      .word-bank{gap:12px;padding-top:22px;align-content:center}
-      .word{min-width:135px;min-height:72px;padding:12px 16px}
+      body{
+        padding:0;
+        display:block;
+      }
+      .game{
+        min-height:100dvh;
+        border-radius:0;
+        padding:14px 12px max(18px, env(safe-area-inset-bottom));
+      }
+      .topbar{
+        align-items:flex-start;
+        padding-right:58px;
+        margin-bottom:8px;
+      }
+      .title-wrap h1{font-size:30px}
+      .title-wrap p{font-size:15px;margin-top:3px}
+      .progress{min-width:88px;font-size:14px}
+      .bar{height:9px;margin-top:5px}
+
+      .mascot{
+        min-height:78px;
+        margin:0 0 6px;
+        gap:10px;
+      }
+      .face{font-size:46px}
+      .speech{
+        padding:9px 12px;
+        border-width:2px;
+        border-radius:17px;
+        font-size:17px;
+      }
+      .speech:before{top:24px}
+      .speech:after{top:27px}
+
+      .labels,.slots{gap:6px}
+      .labels{font-size:14px}
+      .slots{min-height:76px;margin-top:5px}
+      .slot{
+        min-height:72px;
+        padding:6px;
+        border-width:2px;
+        border-radius:14px;
+      }
+
+      .word-bank{
+        min-height:180px;
+        gap:9px;
+        padding:14px 4px 8px;
+        align-content:center;
+      }
+      .word{
+        min-width:118px;
+        min-height:60px;
+        padding:9px 12px;
+        border-width:2px;
+        border-radius:15px;
+        font-size:24px;
+      }
+      .slot .word{min-height:56px;font-size:20px}
+      .status{min-height:42px;font-size:23px}
+      .footer{margin-top:0}
+      .footer button{padding:10px 16px;font-size:16px}
+    }
+
+    @media (max-height:720px) and (max-width:650px){
+      .mascot{min-height:65px}
+      .face{font-size:40px}
+      .speech{font-size:15px;padding:7px 10px}
+      .word-bank{min-height:150px;padding-top:10px}
+      .word{min-height:54px;font-size:22px}
+      .status{min-height:34px;font-size:20px}
     }
   </style>
 </head>
