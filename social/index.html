@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ฟังแล้วเลือก: วันสำคัญทางศาสนา</title>
+  <style>
+    :root{
+      --bg:#f4ead4;
+      --paper:#fffdf8;
+      --ink:#352f28;
+      --accent:#b48138;
+      --good:#3fa66f;
+      --bad:#d55b5b;
+      --shadow:0 10px 26px rgba(70,52,24,.16);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Noto Sans Thai","Tahoma","Arial",sans-serif;
+      color:var(--ink);
+      background:linear-gradient(135deg,#f1dfb5,#faf2df 55%,#ead0a0);
+    }
+
+    .app{
+      width:min(1080px,100%);
+      margin:auto;
+      padding:18px;
+    }
+
+    .screen{
+      background:rgba(255,253,248,.96);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:18px;
+    }
+
+    .hidden{display:none!important}
+
+    .start-screen,.end-screen{
+      min-height:78vh;
+      display:grid;
+      place-items:center;
+      text-align:center;
+    }
+
+    .start-box,.end-box{max-width:650px}
+
+    h1{
+      font-size:clamp(2rem,6vw,4rem);
+      margin:.2em 0;
+    }
+
+    .lead{
+      font-size:clamp(1.05rem,2.7vw,1.35rem);
+      line-height:1.7;
+    }
+
+    button{
+      border:0;
+      border-radius:16px;
+      padding:14px 22px;
+      font-size:1.05rem;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 7px 18px rgba(0,0,0,.11);
+    }
+
+    .primary{background:var(--accent);color:#fff}
+    .secondary{background:#fff;color:var(--ink)}
+
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .title{
+      font-weight:900;
+      font-size:clamp(1.4rem,4vw,2.2rem);
+    }
+
+    .status{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      background:white;
+      border-radius:999px;
+      padding:8px 12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.07);
+      font-weight:800;
+    }
+
+    .prompt{
+      text-align:center;
+      background:rgba(255,255,255,.9);
+      border-radius:18px;
+      padding:14px;
+      margin-bottom:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .prompt h2{
+      margin:0 0 6px;
+      font-size:clamp(1.2rem,3.5vw,1.8rem);
+    }
+
+    .prompt p{
+      margin:0;
+      color:#6e665b;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .board{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .card{
+      border:0;
+      padding:0;
+      background:none;
+      perspective:1000px;
+      aspect-ratio:3/4;
+      cursor:pointer;
+      min-height:210px;
+    }
+
+    .inner{
+      width:100%;
+      height:100%;
+      position:relative;
+      transform-style:preserve-3d;
+      transition:transform .55s;
+    }
+
+    .card.face-up .inner,
+    .card.solved .inner{
+      transform:rotateY(180deg);
+    }
+
+    .face{
+      position:absolute;
+      inset:0;
+      backface-visibility:hidden;
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      border:3px solid rgba(255,255,255,.92);
+    }
+
+    .back{
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#f7dda4,#ecc77b);
+    }
+
+    .back-mark{
+      width:76px;
+      height:76px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:white;
+      font-size:2.5rem;
+      box-shadow:0 6px 18px rgba(0,0,0,.13);
+    }
+
+    .front{
+      transform:rotateY(180deg);
+      background:white;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .img-wrap{
+      flex:1;
+      min-height:0;
+      background:#eee6d6;
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+    }
+
+    .img-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .fallback{
+      font-size:3rem;
+      padding:16px;
+    }
+
+    .caption{
+      background:#fff;
+      padding:12px 8px;
+      text-align:center;
+      font-size:clamp(1.15rem,3.5vw,2rem);
+      font-weight:900;
+      border-top:1px solid #ddd;
+    }
+
+    .card.wrong .face{
+      animation:shake .35s;
+    }
+
+    .card.solved .face{
+      outline:5px solid rgba(63,166,111,.55);
+    }
+
+    @keyframes shake{
+      0%,100%{transform:translateX(0) rotateY(180deg)}
+      25%{transform:translateX(-7px) rotateY(180deg)}
+      75%{transform:translateX(7px) rotateY(180deg)}
+    }
+
+    .message{
+      min-height:48px;
+      text-align:center;
+      padding:12px;
+      font-weight:900;
+      font-size:1.1rem;
+    }
+
+    .countdown-badge{
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:30;
+      width:110px;
+      height:110px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:white;
+      color:var(--ink);
+      box-shadow:0 10px 28px rgba(0,0,0,.18);
+      font-size:3.4rem;
+      font-weight:900;
+      border:5px solid #efcf8c;
+      pointer-events:none;
+    }
+
+    .stars{
+      font-size:2rem;
+      letter-spacing:.15em;
+    }
+
+    @media(min-width:720px){
+      .board{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <section id="startScreen" class="screen start-screen">
+      <div class="start-box">
+        <div style="font-size:4.5rem">🎧</div>
+        <h1>ฟังแล้วเลือก</h1>
+        <p class="lead">
+          ดูการ์ดทั้ง 6 ใบให้ดี เมื่อการ์ดคว่ำลง ให้ฟังคำใบ้ แล้วเลือกภาพที่ถูกต้อง
+        </p>
+        <button id="startBtn" class="primary">เริ่มเกม</button>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="hidden">
+      <div class="header">
+        <div class="title">วันสำคัญทางศาสนา</div>
+        <div class="status">
+          <span class="pill">ถูกแล้ว <span id="score">0</span>/6</span>
+          <span class="pill">ลองทั้งหมด <span id="attempts">0</span> ครั้ง</span>
+        </div>
+      </div>
+
+      <div class="prompt">
+        <h2 id="promptTitle">ตั้งใจฟังนะ</h2>
+        <p id="promptHint">ระบบจะเล่นเสียงคำใบ้ แล้วให้เลือกการ์ด</p>
+        <div class="controls">
+          <button id="replayBtn" class="secondary">🔊 ฟังอีกครั้ง</button>
+          <button id="restartBtn" class="secondary">↻ เริ่มใหม่</button>
+        </div>
+      </div>
+
+      <div id="board" class="board"></div>
+      <div id="message" class="message"></div>
+    </section>
+
+    <section id="endScreen" class="screen end-screen hidden">
+      <div class="end-box">
+        <div class="stars">⭐⭐⭐⭐⭐⭐</div>
+        <h1>เก่งมาก!</h1>
+        <p class="lead">หนูหาการ์ดครบทั้ง 6 ใบแล้ว</p>
+        <p id="summary"></p>
+        <button id="playAgainBtn" class="primary">เล่นอีกครั้ง</button>
+      </div>
+    </section>
+
+    <div id="countdownBadge" class="countdown-badge hidden">10</div>
+
+  </div>
+
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <script>
+    const lessons = [
+      {
+        id:"makha",
+        title:"วันมาฆบูชา",
+        image:"images/makha.jpg",
+        fallback:"🧘‍♂️👥",
+        clueAudio:"audio/clue/makha.mp3",
+        answerAudio:"audio/answer/makha.mp3"
+      },
+      {
+        id:"visakha",
+        title:"วันวิสาขบูชา",
+        image:"images/visakha.jpg",
+        fallback:"👶🌳✨",
+        clueAudio:"audio/clue/visakha.mp3",
+        answerAudio:"audio/answer/visakha.mp3"
+      },
+      {
+        id:"asalha",
+        title:"วันอาสาฬหบูชา",
+        image:"images/asalha.jpg",
+        fallback:"🙏📖",
+        clueAudio:"audio/clue/asalha.mp3",
+        answerAudio:"audio/answer/asalha.mp3"
+      },
+      {
+        id:"atthami",
+        title:"วันอัฐมีบูชา",
+        image:"images/atthami.jpg",
+        fallback:"🔥🙏",
+        clueAudio:"audio/clue/atthami.mp3",
+        answerAudio:"audio/answer/atthami.mp3"
+      },
+      {
+        id:"christmas",
+        title:"วันคริสต์มาส",
+        image:"images/christmas.jpg",
+        fallback:"🎄👶⭐",
+        clueAudio:"audio/clue/christmas.mp3",
+        answerAudio:"audio/answer/christmas.mp3"
+      },
+      {
+        id:"ramadan",
+        title:"เดือนรอมฎอน",
+        image:"images/ramadan.jpg",
+        fallback:"🌙🤲",
+        clueAudio:"audio/clue/ramadan.mp3",
+        answerAudio:"audio/answer/ramadan.mp3"
+      }
+    ];
+
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const endScreen = document.getElementById("endScreen");
+    const board = document.getElementById("board");
+    const countdownBadge = document.getElementById("countdownBadge");
+    const scoreEl = document.getElementById("score");
+    const attemptsEl = document.getElementById("attempts");
+    const messageEl = document.getElementById("message");
+    const promptTitle = document.getElementById("promptTitle");
+    const summary = document.getElementById("summary");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    let remaining = [];
+    let current = null;
+    let score = 0;
+    let attempts = 0;
+    let locked = false;
+    let canChoose = false;
+
+    function shuffle(array){
+      const copy = [...array];
+      for(let i = copy.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function playAudio(src, onEnded){
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = src;
+
+      audioPlayer.onended = () => {
+        audioPlayer.onended = null;
+        if(typeof onEnded === "function") onEnded();
+      };
+
+      audioPlayer.onerror = () => {
+        audioPlayer.onerror = null;
+        messageEl.textContent = "ไม่พบไฟล์เสียง: " + src;
+        if(typeof onEnded === "function") onEnded();
+      };
+
+      audioPlayer.play().catch(() => {
+        messageEl.textContent = "เบราว์เซอร์ยังไม่อนุญาตเสียง กรุณากดปุ่ม “ฟังอีกครั้ง”";
+      });
+    }
+
+    function createBoard(){
+      board.innerHTML = "";
+
+      shuffle(lessons).forEach(item => {
+        const card = document.createElement("button");
+        card.className = "card";
+        card.dataset.id = item.id;
+
+        card.innerHTML = `
+          <div class="inner">
+            <div class="face back">
+              <div class="back-mark">❓</div>
+            </div>
+
+            <div class="face front">
+              <div class="img-wrap">
+                <img
+                  src="${item.image}"
+                  alt="${item.title}"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                >
+                <div class="fallback" style="display:none">${item.fallback}</div>
+              </div>
+
+              <div class="caption">${item.title}</div>
+            </div>
+          </div>
+        `;
+
+        card.addEventListener("click", () => chooseCard(card, item));
+        board.appendChild(card);
+      });
+    }
+
+    function showAllCards(show){
+      document.querySelectorAll(".card").forEach(card => {
+        if(show) card.classList.add("face-up");
+        else card.classList.remove("face-up");
+      });
+    }
+
+    function runCountdown(){
+      let seconds = 10;
+
+      countdownBadge.textContent = seconds;
+      countdownBadge.classList.remove("hidden");
+      showAllCards(true);
+
+      const timer = setInterval(() => {
+        seconds -= 1;
+        countdownBadge.textContent = seconds;
+
+        if(seconds <= 0){
+          clearInterval(timer);
+          countdownBadge.classList.add("hidden");
+          showAllCards(false);
+          setTimeout(nextRound, 650);
+        }
+      }, 1000);
+    }
+
+    function nextRound(){
+      if(remaining.length === 0){
+        finishGame();
+        return;
+      }
+
+      current = remaining[Math.floor(Math.random() * remaining.length)];
+      canChoose = true;
+      locked = false;
+      messageEl.textContent = "";
+      promptTitle.textContent = "ฟังคำใบ้ แล้วเลือกการ์ดที่ถูกต้อง";
+
+      setTimeout(() => playAudio(current.clueAudio), 300);
+    }
+
+    function chooseCard(card, item){
+      if(!canChoose || locked || card.classList.contains("solved")) return;
+
+      attempts += 1;
+      attemptsEl.textContent = attempts;
+      locked = true;
+      card.classList.add("face-up");
+
+      if(item.id === current.id){
+        card.classList.add("solved");
+        score += 1;
+        scoreEl.textContent = score;
+        remaining = remaining.filter(x => x.id !== item.id);
+        messageEl.textContent = "✅ " + item.title;
+        canChoose = false;
+
+        playAudio(item.answerAudio, () => {
+          setTimeout(() => {
+            locked = false;
+            nextRound();
+          }, 2000);
+        });
+
+      }else{
+        card.classList.add("wrong");
+        messageEl.textContent = "ยังไม่ใช่ใบนี้ ลองอีกครั้ง";
+
+        setTimeout(() => {
+          card.classList.remove("face-up", "wrong");
+          locked = false;
+          playAudio(current.clueAudio);
+        }, 1100);
+      }
+    }
+
+    function startGame(){
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+
+      score = 0;
+      attempts = 0;
+      locked = false;
+      canChoose = false;
+      current = null;
+      remaining = [...lessons];
+
+      scoreEl.textContent = "0";
+      attemptsEl.textContent = "0";
+      messageEl.textContent = "";
+
+      startScreen.classList.add("hidden");
+      endScreen.classList.add("hidden");
+      gameScreen.classList.remove("hidden");
+
+      createBoard();
+      setTimeout(runCountdown, 350);
+    }
+
+    function finishGame(){
+      gameScreen.classList.add("hidden");
+      endScreen.classList.remove("hidden");
+      summary.textContent = "ตอบทั้งหมด " + attempts + " ครั้ง";
+    }
+
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("playAgainBtn").addEventListener("click", startGame);
+    document.getElementById("restartBtn").addEventListener("click", startGame);
+
+    document.getElementById("replayBtn").addEventListener("click", () => {
+      if(current) playAudio(current.clueAudio);
+    });
+  </script>
+</body>
+</html>
