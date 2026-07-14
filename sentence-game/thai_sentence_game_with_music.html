@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>เกมเรียงประโยคของกามิน</title>
+  <style>
+    :root{
+      --bg1:#eef8ff;
+      --bg2:#fff6df;
+      --card:#ffffff;
+      --ink:#24324a;
+      --soft:#6f7b91;
+      --blue:#2f80ed;
+      --green:#26a269;
+      --red:#e5484d;
+      --yellow:#ffd166;
+      --shadow:0 12px 30px rgba(39,74,112,.14);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family:"Noto Sans Thai","Tahoma",sans-serif;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--ink);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:18px;
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    .game{
+      width:min(920px,100%);
+      min-height:min(690px,96vh);
+      background:rgba(255,255,255,.92);
+      border:3px solid rgba(255,255,255,.9);
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      padding:26px;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .title-wrap h1{
+      margin:0;
+      font-size:clamp(28px,4vw,46px);
+      line-height:1.1;
+    }
+
+    .title-wrap p{
+      margin:6px 0 0;
+      color:var(--soft);
+      font-size:clamp(16px,2vw,21px);
+    }
+
+    .progress{
+      min-width:140px;
+      text-align:right;
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .bar{
+      width:100%;
+      height:12px;
+      background:#e8edf5;
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .bar > div{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,#4da3ff,#26c281);
+      transition:width .35s ease;
+    }
+
+    .mascot{
+      min-height:120px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      margin:4px 0 12px;
+    }
+
+    .face{
+      font-size:72px;
+      filter:drop-shadow(0 8px 10px rgba(0,0,0,.10));
+      transform-origin:center;
+    }
+
+    .speech{
+      background:#fff;
+      border:3px solid #d8e6f5;
+      border-radius:24px;
+      padding:15px 20px;
+      font-size:clamp(19px,2.7vw,28px);
+      font-weight:800;
+      position:relative;
+      max-width:480px;
+      text-align:center;
+    }
+    .speech:before{
+      content:"";
+      position:absolute;
+      left:-16px;
+      top:34px;
+      border-width:11px 16px 11px 0;
+      border-style:solid;
+      border-color:transparent #d8e6f5 transparent transparent;
+    }
+    .speech:after{
+      content:"";
+      position:absolute;
+      left:-11px;
+      top:37px;
+      border-width:8px 12px 8px 0;
+      border-style:solid;
+      border-color:transparent #fff transparent transparent;
+    }
+
+    .labels, .slots{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+    }
+
+    .labels{
+      margin-top:4px;
+      color:var(--soft);
+      font-weight:800;
+      text-align:center;
+      font-size:clamp(16px,2vw,20px);
+    }
+
+    .slots{
+      margin-top:8px;
+      min-height:110px;
+    }
+
+    .slot{
+      border:3px dashed #b8c8dc;
+      border-radius:20px;
+      background:#f7fbff;
+      min-height:96px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px;
+      transition:.2s ease;
+      position:relative;
+    }
+    .slot.over{
+      border-color:var(--blue);
+      background:#eaf4ff;
+      transform:scale(1.02);
+    }
+
+    .word-bank{
+      flex:1;
+      min-height:230px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      flex-wrap:wrap;
+      padding:28px 8px 18px;
+      position:relative;
+    }
+
+    .word{
+      min-width:170px;
+      min-height:82px;
+      padding:16px 22px;
+      border-radius:20px;
+      background:var(--card);
+      box-shadow:0 8px 18px rgba(43,70,105,.15);
+      border:3px solid #dbe7f4;
+      font-size:clamp(24px,3.5vw,38px);
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:grab;
+      user-select:none;
+      touch-action:none;
+      transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      z-index:2;
+    }
+    .word:active{cursor:grabbing}
+    .word.dragging{
+      position:fixed;
+      margin:0;
+      pointer-events:none;
+      z-index:9999;
+      transform:scale(1.06) rotate(-2deg);
+      box-shadow:0 18px 34px rgba(43,70,105,.28);
+    }
+
+    .slot .word{
+      min-width:0;
+      width:100%;
+      min-height:72px;
+      box-shadow:none;
+      border-color:#c9dcf0;
+      cursor:grab;
+    }
+
+    .status{
+      min-height:56px;
+      text-align:center;
+      font-size:clamp(24px,3vw,36px);
+      font-weight:900;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .status.correct{color:var(--green)}
+    .status.wrong{color:var(--red)}
+
+    .footer{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-top:4px;
+    }
+
+    button{
+      border:0;
+      border-radius:16px;
+      padding:13px 24px;
+      font-family:inherit;
+      font-weight:900;
+      font-size:18px;
+      cursor:pointer;
+      background:#eaf2fb;
+      color:var(--ink);
+    }
+
+    .start-screen,.finish-screen{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg,#eaf7ff,#fff3cf);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      padding:28px;
+      z-index:100;
+    }
+
+    .start-screen h2,.finish-screen h2{
+      font-size:clamp(38px,6vw,64px);
+      margin:12px 0;
+    }
+    .start-screen p,.finish-screen p{
+      font-size:clamp(20px,3vw,30px);
+      color:var(--soft);
+      max-width:620px;
+      margin:0 0 26px;
+    }
+    .big-btn{
+      background:linear-gradient(135deg,#2f80ed,#19b47b);
+      color:#fff;
+      padding:18px 42px;
+      font-size:clamp(24px,3vw,34px);
+      box-shadow:0 10px 24px rgba(47,128,237,.25);
+    }
+
+    .hidden{display:none !important}
+
+    .shake{animation:shake .45s ease}
+    @keyframes shake{
+      0%,100%{transform:translateX(0)}
+      20%{transform:translateX(-12px)}
+      40%{transform:translateX(10px)}
+      60%{transform:translateX(-8px)}
+      80%{transform:translateX(6px)}
+    }
+
+    .bounce{animation:bounce .6s ease}
+    @keyframes bounce{
+      0%,100%{transform:scale(1)}
+      35%{transform:scale(1.22) rotate(-5deg)}
+      65%{transform:scale(.95) rotate(4deg)}
+    }
+
+    .confetti{
+      position:absolute;
+      width:12px;
+      height:18px;
+      border-radius:3px;
+      top:-24px;
+      animation:fall 1.2s linear forwards;
+      z-index:200;
+    }
+    @keyframes fall{
+      to{transform:translateY(760px) rotate(720deg);opacity:.1}
+    }
+
+    @media (max-width:650px){
+      body{padding:0}
+      .game{min-height:100vh;border-radius:0;padding:18px 14px}
+      .topbar{align-items:flex-start}
+      .progress{min-width:105px;font-size:16px}
+      .mascot{min-height:100px}
+      .face{font-size:56px}
+      .speech{padding:12px 14px}
+      .labels,.slots{gap:8px}
+      .slot{min-height:88px;border-radius:16px}
+      .word-bank{gap:12px;padding-top:22px;align-content:center}
+      .word{min-width:135px;min-height:72px;padding:12px 16px}
+    }
+  </style>
+</head>
+<body>
+  <audio id="bgm" src="8bitshort.mp3" loop preload="auto"></audio>
+  <main class="game" id="game">
+    <section class="start-screen" id="startScreen">
+      <div style="font-size:82px">🧩</div>
+      <h2>มาเรียงประโยคกัน!</h2>
+      <p>ลากคำให้เป็นประโยคที่ถูกต้อง</p>
+      <button class="big-btn" id="startBtn">เริ่มเล่น</button>
+    </section>
+
+    <section class="finish-screen hidden" id="finishScreen">
+      <div style="font-size:92px">🏆</div>
+      <h2>เก่งมาก!</h2>
+      <p id="finishText">เรียงประโยคครบแล้ว</p>
+      <button class="big-btn" id="restartBtn">เล่นอีกครั้ง</button>
+    </section>
+
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>เกมเรียงประโยค</h1>
+        <p>ใคร — ทำอะไร — อะไร</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button id="musicBtn" aria-label="เปิดหรือปิดเพลง" title="เปิดหรือปิดเพลง" style="width:52px;height:52px;border-radius:50%;padding:0;font-size:25px;">🔊</button>
+        <div class="progress">
+        <span id="progressText">ข้อ 1 / 10</span>
+        <div class="bar"><div id="progressBar"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mascot">
+      <div class="face" id="face">👦</div>
+      <div class="speech" id="speech">ช่วยเรียงประโยคให้ถูกนะ</div>
+    </div>
+
+    <div class="labels">
+      <div>ใคร</div>
+      <div>ทำอะไร</div>
+      <div>อะไร</div>
+    </div>
+
+    <div class="slots" id="slots">
+      <div class="slot" data-index="0"></div>
+      <div class="slot" data-index="1"></div>
+      <div class="slot" data-index="2"></div>
+    </div>
+
+    <div class="word-bank" id="wordBank"></div>
+
+    <div class="status" id="status"></div>
+
+    <div class="footer">
+      <button id="resetBtn">↻ เริ่มข้อนี้ใหม่</button>
+    </div>
+  </main>
+
+<script>
+const questions = [
+  ["กามิน","กิน","ข้าว"],
+  ["ป้า","อบ","ขนม"],
+  ["ยาย","ทอด","ไข่ดาว"],
+  ["พ่อก้อง","ขับ","รถ"],
+  ["แม่นุ่น","ถู","บ้าน"],
+  ["กามิน","เก็บ","ของเล่น"],
+  ["ลุงเอ๊ะ","เป็น","ซอมบี้"],
+  ["ป้า","แปรง","ฟัน"],
+  ["ยาย","ดู","ทีวี"],
+  ["พ่อก้อง","ล้าง","รถ"]
+];
+
+let current = 0;
+let locked = false;
+let activeDrag = null;
+let originalParent = null;
+let placeholder = null;
+let offsetX = 0;
+let offsetY = 0;
+
+const game = document.getElementById("game");
+const wordBank = document.getElementById("wordBank");
+const slots = [...document.querySelectorAll(".slot")];
+const statusEl = document.getElementById("status");
+const face = document.getElementById("face");
+const speech = document.getElementById("speech");
+const progressText = document.getElementById("progressText");
+const progressBar = document.getElementById("progressBar");
+const startScreen = document.getElementById("startScreen");
+const finishScreen = document.getElementById("finishScreen");
+const bgm = document.getElementById("bgm");
+const musicBtn = document.getElementById("musicBtn");
+let musicOn = true;
+bgm.volume = 0.22;
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function makeWord(text){
+  const el=document.createElement("div");
+  el.className="word";
+  el.textContent=text;
+  el.dataset.word=text;
+  el.addEventListener("pointerdown", startDrag);
+  return el;
+}
+
+function loadQuestion(){
+  locked=false;
+  statusEl.textContent="";
+  statusEl.className="status";
+  face.textContent = current===6 ? "🧟" : "👦";
+  speech.textContent = current===6 ? "ช่วยปลุกลุงเอ๊ะหน่อย!" : "ช่วยเรียงประโยคให้ถูกนะ";
+  slots.forEach(s=>{s.innerHTML="";s.classList.remove("over");});
+  wordBank.innerHTML="";
+  shuffle(questions[current]).forEach(w=>wordBank.appendChild(makeWord(w)));
+  progressText.textContent=`ข้อ ${current+1} / ${questions.length}`;
+  progressBar.style.width=`${(current/questions.length)*100}%`;
+}
+
+function startDrag(e){
+  if(locked) return;
+  e.preventDefault();
+  const el=e.currentTarget;
+  const rect=el.getBoundingClientRect();
+  activeDrag=el;
+  originalParent=el.parentElement;
+  placeholder=document.createElement("div");
+  placeholder.style.width=rect.width+"px";
+  placeholder.style.height=rect.height+"px";
+  placeholder.style.visibility="hidden";
+  originalParent.insertBefore(placeholder,el);
+
+  offsetX=e.clientX-rect.left;
+  offsetY=e.clientY-rect.top;
+  el.classList.add("dragging");
+  el.style.width=rect.width+"px";
+  el.style.height=rect.height+"px";
+  el.style.left=(e.clientX-offsetX)+"px";
+  el.style.top=(e.clientY-offsetY)+"px";
+  document.body.appendChild(el);
+  el.setPointerCapture(e.pointerId);
+
+  el.addEventListener("pointermove", moveDrag);
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+}
+
+function moveDrag(e){
+  if(!activeDrag) return;
+  activeDrag.style.left=(e.clientX-offsetX)+"px";
+  activeDrag.style.top=(e.clientY-offsetY)+"px";
+  slots.forEach(s=>s.classList.remove("over"));
+  const target=getSlotAt(e.clientX,e.clientY);
+  if(target) target.classList.add("over");
+}
+
+function getSlotAt(x,y){
+  return slots.find(slot=>{
+    const r=slot.getBoundingClientRect();
+    return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+  });
+}
+
+function endDrag(e){
+  if(!activeDrag) return;
+  const el=activeDrag;
+  const target=getSlotAt(e.clientX,e.clientY);
+
+  slots.forEach(s=>s.classList.remove("over"));
+  el.classList.remove("dragging");
+  el.style.cssText="";
+
+  if(target){
+    if(target.firstElementChild){
+      const existing=target.firstElementChild;
+      originalParent.insertBefore(existing,placeholder);
+    }
+    target.appendChild(el);
+  }else{
+    originalParent.insertBefore(el,placeholder);
+  }
+
+  placeholder.remove();
+  el.removeEventListener("pointermove", moveDrag);
+  el.removeEventListener("pointerup", endDrag);
+  el.removeEventListener("pointercancel", endDrag);
+
+  activeDrag=null;
+  originalParent=null;
+  placeholder=null;
+
+  if(slots.every(s=>s.firstElementChild)) checkAnswer();
+}
+
+function playTone(type){
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const ctx=new AudioContext();
+  const gain=ctx.createGain();
+  gain.connect(ctx.destination);
+
+  if(type==="correct"){
+    const notes=[523.25,659.25,783.99];
+    notes.forEach((freq,i)=>{
+      const osc=ctx.createOscillator();
+      const g=ctx.createGain();
+      osc.type="sine";
+      osc.frequency.value=freq;
+      g.gain.setValueAtTime(0.0001,ctx.currentTime+i*.12);
+      g.gain.exponentialRampToValueAtTime(.25,ctx.currentTime+i*.12+.02);
+      g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+i*.12+.18);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(ctx.currentTime+i*.12);
+      osc.stop(ctx.currentTime+i*.12+.2);
+    });
+  }else{
+    const osc=ctx.createOscillator();
+    osc.type="triangle";
+    osc.frequency.setValueAtTime(220,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(130,ctx.currentTime+.35);
+    gain.gain.setValueAtTime(.22,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.38);
+    osc.connect(gain);
+    osc.start();
+    osc.stop(ctx.currentTime+.4);
+  }
+}
+
+function checkAnswer(){
+  if(locked) return;
+  locked=true;
+  const answer=slots.map(s=>s.firstElementChild.dataset.word);
+  const correct=questions[current].every((w,i)=>answer[i]===w);
+
+  if(correct){
+    playTone("correct");
+    statusEl.textContent="ถูกต้อง! 🎉";
+    statusEl.className="status correct";
+    face.classList.add("bounce");
+    speech.textContent=current===6 ? "บรื๋อ... ลุงเอ๊ะตื่นแล้ว!" : "เก่งมาก!";
+    confetti();
+    setTimeout(()=>face.classList.remove("bounce"),650);
+    setTimeout(()=>{
+      current++;
+      if(current>=questions.length){
+        progressBar.style.width="100%";
+        document.getElementById("finishText").textContent=`ทำครบ ${questions.length} ประโยคแล้ว`;
+        finishScreen.classList.remove("hidden");
+      }else{
+        loadQuestion();
+      }
+    },1400);
+  }else{
+    playTone("wrong");
+    statusEl.textContent="ยังไม่ถูก ลองใหม่นะ";
+    statusEl.className="status wrong";
+    document.getElementById("slots").classList.add("shake");
+    face.textContent="🤔";
+    speech.textContent="คำไหนควรอยู่ก่อนนะ?";
+    setTimeout(()=>{
+      document.getElementById("slots").classList.remove("shake");
+      returnCards();
+    },700);
+  }
+}
+
+function returnCards(){
+  const cards=slots.map(s=>s.firstElementChild).filter(Boolean);
+  cards.forEach(card=>wordBank.appendChild(card));
+  slots.forEach(s=>s.innerHTML="");
+  statusEl.textContent="";
+  statusEl.className="status";
+  face.textContent=current===6 ? "🧟" : "👦";
+  speech.textContent=current===6 ? "ช่วยปลุกลุงเอ๊ะหน่อย!" : "ลองอีกครั้งนะ";
+  locked=false;
+}
+
+function confetti(){
+  const colors=["#ff6b6b","#ffd166","#4dabf7","#63e6be","#b197fc"];
+  for(let i=0;i<32;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=(Math.random()*100)+"%";
+    c.style.background=colors[Math.floor(Math.random()*colors.length)];
+    c.style.animationDelay=(Math.random()*.25)+"s";
+    c.style.transform=`rotate(${Math.random()*180}deg)`;
+    game.appendChild(c);
+    setTimeout(()=>c.remove(),1600);
+  }
+}
+
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(!locked) loadQuestion();
+});
+document.getElementById("startBtn").addEventListener("click",()=>{
+  startScreen.classList.add("hidden");
+  loadQuestion();
+  if(musicOn){ bgm.currentTime = 0; bgm.play().catch(()=>{}); }
+});
+
+musicBtn.addEventListener("click",()=>{
+  musicOn = !musicOn;
+  if(musicOn){
+    bgm.play().catch(()=>{});
+    musicBtn.textContent = "🔊";
+  }else{
+    bgm.pause();
+    musicBtn.textContent = "🔇";
+  }
+});
+document.getElementById("restartBtn").addEventListener("click",()=>{
+  current=0;
+  finishScreen.classList.add("hidden");
+  loadQuestion();
+  if(musicOn){ bgm.currentTime = 0; bgm.play().catch(()=>{}); }
+});
+
+loadQuestion();
+</script>
+</body>
+</html>
