@@ -22,7 +22,7 @@
     overflow:hidden;
     -webkit-user-select:none;user-select:none;
   }
-  #app{position:relative;width:100vw;height:100vh;overflow:hidden;}
+  #app{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;}
   .screen{
     position:absolute;inset:0;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -78,7 +78,7 @@
   }
 
   /* ---------- GAME SCREEN ---------- */
-  #screen-game{justify-content:flex-start;padding:10px 16px 16px;gap:8px;}
+  #screen-game{justify-content:flex-start;padding:10px 16px 16px;gap:8px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .game-header{
     width:100%;max-width:1100px;
     display:flex;align-items:center;gap:12px;
@@ -116,12 +116,13 @@
   #stage-wrap{
     width:100%;max-width:1100px;flex:1;
     display:flex;align-items:center;justify-content:center;
-    min-height:0;
+    min-height:0;min-width:0;
   }
   #dino-stage{
-    position:relative;width:100%;
+    position:relative;
+    width:100%;
     aspect-ratio:2816/1536;
-    max-height:100%;
+    max-width:100%;max-height:100%;
     background:
       radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.25), transparent 60%),
       linear-gradient(180deg, rgba(200,230,190,.15), rgba(20,50,25,.25));
@@ -260,6 +261,16 @@
   }
   @keyframes fall{
     to{transform:translateY(110vh) rotate(360deg);}
+  }
+
+  /* ---------- SHORT / LANDSCAPE VIEWPORTS ---------- */
+  @media (max-height:520px){
+    #screen-game{padding:6px 12px 10px;gap:4px;}
+    .game-header{padding:4px 12px;}
+    .header-avatar{width:36px;height:36px;}
+    .instruction{font-size:clamp(11px,1.6vw,14px);}
+    #word-bank{padding:8px;min-height:48px;gap:6px;}
+    .word-chip{padding:6px 14px;font-size:clamp(12px,2vw,16px);}
   }
 </style>
 </head>
@@ -478,7 +489,24 @@
   // ---------- Build stage: connector lines + dropzones ----------
   var svg = document.getElementById('line-svg');
   var stage = document.getElementById('dino-stage');
+  var stageWrap = document.getElementById('stage-wrap');
   var bank = document.getElementById('word-bank');
+
+  // Keep #dino-stage exactly matching the image's aspect ratio while fitting
+  // inside stage-wrap (both width- and height-constrained), so the % based
+  // dropzone/line coordinates always line up with the rendered image.
+  var STAGE_RATIO = 2816/1536;
+  function fitStage(){
+    var cw = stageWrap.clientWidth;
+    var ch = stageWrap.clientHeight;
+    if(!cw || !ch) return;
+    var w = cw, h = w / STAGE_RATIO;
+    if(h > ch){ h = ch; w = h * STAGE_RATIO; }
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+  }
+  window.addEventListener('resize', fitStage);
+  window.addEventListener('orientationchange', function(){ setTimeout(fitStage, 100); });
 
   LABELS.forEach(function(L){
     var line = document.createElementNS('http://www.w3.org/2000/svg','line');
@@ -732,6 +760,7 @@
 
   // init
   buildBank();
+  fitStage();
 })();
 </script>
 </body>
