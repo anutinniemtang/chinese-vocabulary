@@ -410,7 +410,10 @@
         }
         ctx.rotate(textAngle);
 
-        ctx.textAlign = "center";
+        // iOS Safari can add an invisible leading area to Thai canvas text.
+        // Draw from the measured ink bounds instead of relying on textAlign=center.
+        ctx.direction = "ltr";
+        ctx.textAlign = "left";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#2d3436";
         ctx.shadowColor = "rgba(255,255,255,.95)";
@@ -418,13 +421,23 @@
 
         let fontSize = Math.max(22, Math.min(38, 300 / Math.max(5, names.length)));
         const maxWidth = Math.max(95, radius * 0.42);
+        let metrics;
         do {
-          ctx.font = `700 ${fontSize}px "Mali", Tahoma, sans-serif`;
-          if (ctx.measureText(name).width <= maxWidth || fontSize <= 18) break;
+          ctx.font = `700 ${fontSize}px "Mali", "Thonburi", -apple-system, BlinkMacSystemFont, Tahoma, sans-serif`;
+          metrics = ctx.measureText(name);
+          if (metrics.width <= maxWidth || fontSize <= 18) break;
           fontSize -= 1;
         } while (fontSize > 18);
 
-        ctx.fillText(name, 0, 0);
+        metrics = ctx.measureText(name);
+        const leftInk = Number.isFinite(metrics.actualBoundingBoxLeft)
+          ? metrics.actualBoundingBoxLeft : 0;
+        const rightInk = Number.isFinite(metrics.actualBoundingBoxRight)
+          ? metrics.actualBoundingBoxRight : metrics.width;
+        const inkWidth = leftInk + rightInk;
+        const drawX = -inkWidth / 2 + leftInk;
+
+        ctx.fillText(name, drawX, 0);
         ctx.restore();
       });
 
@@ -611,7 +624,14 @@
 
     syncTextarea();
     updateHistory();
-    drawWheel();
+
+    // Wait for the Thai webfont before the first canvas rendering.
+    // This prevents Safari from measuring with one font and drawing with another.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => drawWheel());
+    } else {
+      drawWheel();
+    }
   </script>
 </body>
 </html>
