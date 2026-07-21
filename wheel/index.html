@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>วงล้อครอบครัวของกามิน</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap');
+
+    :root {
+      --bg1: #fff1f7;
+      --bg2: #e8f7ff;
+      --card: rgba(255,255,255,.88);
+      --text: #2f3542;
+      --accent: #ff5f7e;
+      --accent2: #6c5ce7;
+      --shadow: 0 16px 40px rgba(73, 84, 110, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Mali", Tahoma, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 15%, #fff8c9 0 12%, transparent 13%),
+        radial-gradient(circle at 90% 10%, #ffd9e6 0 13%, transparent 14%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(980px, 94vw);
+      margin: 0 auto;
+      padding: 20px 0 32px;
+      display: grid;
+      gap: 18px;
+    }
+
+    h1 {
+      margin: 4px 0 0;
+      text-align: center;
+      font-size: clamp(1.7rem, 5vw, 2.7rem);
+      color: #ff4f74;
+      text-shadow: 0 3px 0 #fff;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin: 0;
+      font-size: .98rem;
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(260px, .85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .wheel-wrap {
+      display: grid;
+      place-items: center;
+      position: relative;
+      min-height: 420px;
+    }
+
+    .pointer {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 22px solid transparent;
+      border-right: 22px solid transparent;
+      border-top: 42px solid #ff3b5f;
+      z-index: 4;
+      filter: drop-shadow(0 4px 2px rgba(0,0,0,.18));
+    }
+
+    canvas {
+      width: min(78vw, 430px);
+      height: min(78vw, 430px);
+      max-width: 430px;
+      max-height: 430px;
+      border-radius: 50%;
+      box-shadow: 0 14px 30px rgba(57, 65, 92, .25);
+      background: white;
+    }
+
+    .center-button {
+      position: absolute;
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 8px solid white;
+      background: linear-gradient(135deg, #ff6784, #ff9d4d);
+      color: white;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,.22);
+      z-index: 3;
+      transition: transform .15s;
+    }
+
+    .center-button:active { transform: scale(.94); }
+    .center-button:disabled { opacity: .65; cursor: not-allowed; }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    .controls h2 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 185px;
+      resize: vertical;
+      border: 2px solid #e8e8f0;
+      border-radius: 16px;
+      padding: 12px;
+      font: 600 1rem/1.7 "Mali", Tahoma, sans-serif;
+      color: #333;
+      outline: none;
+      background: rgba(255,255,255,.94);
+    }
+
+    textarea:focus { border-color: #8f7cf4; }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button {
+      font-family: inherit;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: .96rem;
+      cursor: pointer;
+      transition: transform .15s, opacity .15s;
+    }
+
+    button:active { transform: scale(.97); }
+
+    .primary { background: #6c5ce7; color: white; }
+    .secondary { background: #e9e6ff; color: #5143b7; }
+    .music { background: #e9fff3; color: #198754; }
+    .danger { background: #ffe8ed; color: #d93655; }
+
+    .history {
+      margin-top: 8px;
+      padding-top: 12px;
+      border-top: 1px dashed #d9d9e6;
+    }
+
+    .history ol {
+      margin: 8px 0 0;
+      padding-left: 28px;
+      max-height: 135px;
+      overflow: auto;
+    }
+
+    .history li { margin: 5px 0; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(31, 35, 48, .58);
+      padding: 18px;
+      z-index: 20;
+    }
+
+    .modal.show { display: grid; }
+
+    .winner-box {
+      width: min(430px, 92vw);
+      background: white;
+      border-radius: 28px;
+      padding: 28px 22px 22px;
+      text-align: center;
+      box-shadow: 0 22px 60px rgba(0,0,0,.28);
+      animation: pop .45s cubic-bezier(.2,.9,.2,1.3);
+    }
+
+    .winner-box .emoji { font-size: 3rem; }
+    .winner-box h2 { margin: 8px 0; font-size: 1.25rem; }
+    .winner-name {
+      font-size: clamp(2.1rem, 8vw, 3.5rem);
+      color: #ff4f74;
+      font-weight: 700;
+      margin: 8px 0 18px;
+      animation: bounce 1s infinite alternate;
+    }
+
+    .winner-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .keep { background: #dff8e9; color: #137a45; }
+    .remove { background: #ffe2e8; color: #c83050; }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 16px;
+      top: -20px;
+      z-index: 30;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes pop {
+      from { transform: scale(.55) rotate(-6deg); opacity: 0; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    @keyframes bounce {
+      to { transform: translateY(-8px) scale(1.03); }
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: .9; }
+    }
+
+    @media (max-width: 760px) {
+      .main { grid-template-columns: 1fr; }
+      .wheel-wrap { min-height: min(96vw, 440px); }
+      .card { padding: 14px; border-radius: 20px; }
+      .controls { order: 2; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>🎡 วงล้อครอบครัวของกามิน</h1>
+    <p class="subtitle">กดปุ่มตรงกลาง แล้วลุ้นว่าใครจะเป็นผู้โชคดี!</p>
+
+    <div class="main">
+      <section class="card wheel-wrap">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="700" height="700"></canvas>
+        <button id="spinBtn" class="center-button">หมุน!</button>
+      </section>
+
+      <aside class="card controls">
+        <h2>รายชื่อในวงล้อ</h2>
+        <textarea id="nameInput" aria-label="รายชื่อ"></textarea>
+
+        <div class="button-grid">
+          <button id="updateBtn" class="primary">อัปเดตวงล้อ</button>
+          <button id="resetBtn" class="secondary">คืนค่าเริ่มต้น</button>
+          <button id="musicBtn" class="music">🎵 เปิดเพลง</button>
+          <button id="clearHistoryBtn" class="danger">ล้างประวัติ</button>
+        </div>
+
+        <div class="history">
+          <strong>🏆 ประวัติผู้ชนะ</strong>
+          <ol id="historyList"></ol>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="winnerModal" class="modal">
+    <div class="winner-box">
+      <div class="emoji">🎉🏆🎉</div>
+      <h2>ผู้โชคดีคือ...</h2>
+      <div id="winnerName" class="winner-name"></div>
+      <div class="winner-actions">
+        <button id="keepBtn" class="keep">เก็บชื่อไว้</button>
+        <button id="removeBtn" class="remove">เอาชื่อออก</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" src="background.mp3" loop preload="auto"></audio>
+  <audio id="winnerSound" src="winner.mp3" preload="auto"></audio>
+
+  <script>
+    const DEFAULT_NAMES = [
+      "กามิน",
+      "ยายชุ",
+      "พ่อก้อง",
+      "แม่นุ่น",
+      "ป้านิล",
+      "น้าโน๊ต",
+      "ปู่จา",
+      "พี่กล้า"
+    ];
+
+    const colors = [
+      "#ff7675", "#74b9ff", "#55efc4", "#ffeaa7",
+      "#a29bfe", "#fd79a8", "#81ecec", "#fab1a0",
+      "#00cec9", "#e17055", "#6c5ce7", "#00b894"
+    ];
+
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spinBtn");
+    const nameInput = document.getElementById("nameInput");
+    const updateBtn = document.getElementById("updateBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const musicBtn = document.getElementById("musicBtn");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+    const historyList = document.getElementById("historyList");
+    const modal = document.getElementById("winnerModal");
+    const winnerNameEl = document.getElementById("winnerName");
+    const keepBtn = document.getElementById("keepBtn");
+    const removeBtn = document.getElementById("removeBtn");
+    const bgMusic = document.getElementById("bgMusic");
+    const winnerSound = document.getElementById("winnerSound");
+
+    let names = loadNames();
+    let history = JSON.parse(localStorage.getItem("garminWheelHistory") || "[]");
+    let rotation = 0;
+    let spinning = false;
+    let currentWinner = "";
+
+    function loadNames() {
+      const saved = JSON.parse(localStorage.getItem("garminWheelNames") || "null");
+      return Array.isArray(saved) && saved.length ? saved : [...DEFAULT_NAMES];
+    }
+
+    function saveNames() {
+      localStorage.setItem("garminWheelNames", JSON.stringify(names));
+    }
+
+    function saveHistory() {
+      localStorage.setItem("garminWheelHistory", JSON.stringify(history));
+    }
+
+    function syncTextarea() {
+      nameInput.value = names.join("\n");
+    }
+
+    function drawWheel() {
+      const size = canvas.width;
+      const center = size / 2;
+      const radius = center - 14;
+      ctx.clearRect(0, 0, size, size);
+
+      if (!names.length) {
+        ctx.fillStyle = "#f1f2f6";
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#666";
+        ctx.font = '700 34px "Mali", Tahoma, sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("เพิ่มชื่อก่อนหมุน", center, center);
+        return;
+      }
+
+      const arc = (Math.PI * 2) / names.length;
+
+      names.forEach((name, i) => {
+        const start = rotation + i * arc - Math.PI / 2;
+        const end = start + arc;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,.95)";
+        ctx.lineWidth = 6;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#2d3436";
+        const fontSize = Math.max(24, Math.min(40, 310 / Math.max(5, names.length)));
+        ctx.font = `700 ${fontSize}px "Mali", Tahoma, sans-serif`;
+        ctx.shadowColor = "rgba(255,255,255,.9)";
+        ctx.shadowBlur = 4;
+        ctx.fillText(name, radius - 34, 0);
+        ctx.restore();
+      });
+
+      ctx.beginPath();
+      ctx.arc(center, center, 82, 0, Math.PI * 2);
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.strokeStyle = "#ffd166";
+      ctx.lineWidth = 10;
+      ctx.stroke();
+    }
+
+    function parseNames() {
+      return nameInput.value
+        .split(/[\n,]+/)
+        .map(v => v.trim())
+        .filter(Boolean)
+        .slice(0, 30);
+    }
+
+    function updateHistory() {
+      historyList.innerHTML = "";
+      history.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+        historyList.appendChild(li);
+      });
+    }
+
+    function spin() {
+      if (spinning || names.length < 2) {
+        if (names.length < 2) alert("ต้องมีอย่างน้อย 2 ชื่อนะครับ");
+        return;
+      }
+
+      spinning = true;
+      spinBtn.disabled = true;
+      const duration = 4200;
+      const start = performance.now();
+      const startRotation = rotation;
+      const extraTurns = 7 + Math.random() * 3;
+      const target = startRotation + extraTurns * Math.PI * 2 + Math.random() * Math.PI * 2;
+
+      function animate(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 4);
+        rotation = startRotation + (target - startRotation) * eased;
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          rotation %= Math.PI * 2;
+          spinning = false;
+          spinBtn.disabled = false;
+          announceWinner();
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function announceWinner() {
+      const arc = (Math.PI * 2) / names.length;
+      const normalized = ((-rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      const index = Math.floor((normalized + arc / 2) / arc) % names.length;
+      currentWinner = names[index];
+
+      winnerNameEl.textContent = currentWinner;
+      modal.classList.add("show");
+      history.unshift(currentWinner);
+      history = history.slice(0, 20);
+      saveHistory();
+      updateHistory();
+
+      winnerSound.currentTime = 0;
+      winnerSound.play().catch(() => playFallbackWinnerTone());
+      launchConfetti();
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      currentWinner = "";
+    }
+
+    function removeWinner() {
+      if (!currentWinner) return;
+      names = names.filter(name => name !== currentWinner);
+      saveNames();
+      syncTextarea();
+      rotation = 0;
+      drawWheel();
+      closeModal();
+    }
+
+    function keepWinner() {
+      closeModal();
+    }
+
+    function launchConfetti() {
+      const pieces = 90;
+      for (let i = 0; i < pieces; i++) {
+        const el = document.createElement("div");
+        el.className = "confetti";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.animationDuration = (2.2 + Math.random() * 2.3) + "s";
+        el.style.animationDelay = (Math.random() * .5) + "s";
+        el.style.transform = `rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5200);
+      }
+    }
+
+    function playFallbackWinnerTone() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + i * .12);
+          gain.gain.exponentialRampToValueAtTime(.22, audioCtx.currentTime + i * .12 + .02);
+          gain.gain.exponentialRampToValueAtTime(.0001, audioCtx.currentTime + i * .12 + .22);
+          osc.start(audioCtx.currentTime + i * .12);
+          osc.stop(audioCtx.currentTime + i * .12 + .24);
+        });
+      } catch(e) {}
+    }
+
+    updateBtn.addEventListener("click", () => {
+      const updated = parseNames();
+      if (updated.length < 2) {
+        alert("กรุณาใส่อย่างน้อย 2 ชื่อ");
+        return;
+      }
+      names = updated;
+      saveNames();
+      rotation = 0;
+      drawWheel();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      names = [...DEFAULT_NAMES];
+      history = [];
+      saveNames();
+      saveHistory();
+      syncTextarea();
+      updateHistory();
+      rotation = 0;
+      drawWheel();
+    });
+
+    clearHistoryBtn.addEventListener("click", () => {
+      history = [];
+      saveHistory();
+      updateHistory();
+    });
+
+    musicBtn.addEventListener("click", async () => {
+      if (bgMusic.paused) {
+        try {
+          bgMusic.volume = 0.35;
+          await bgMusic.play();
+          musicBtn.textContent = "🔇 ปิดเพลง";
+        } catch {
+          alert("ไม่พบไฟล์ background.mp3 หรือเบราว์เซอร์ยังไม่อนุญาตให้เล่นเสียง");
+        }
+      } else {
+        bgMusic.pause();
+        musicBtn.textContent = "🎵 เปิดเพลง";
+      }
+    });
+
+    spinBtn.addEventListener("click", spin);
+    keepBtn.addEventListener("click", keepWinner);
+    removeBtn.addEventListener("click", removeWinner);
+
+    modal.addEventListener("click", e => {
+      if (e.target === modal) keepWinner();
+    });
+
+    syncTextarea();
+    updateHistory();
+    drawWheel();
+  </script>
+</body>
+</html>
