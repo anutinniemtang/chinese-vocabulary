@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>วงล้อครอบครัวของกามิน</title>
+  <title>วงล้อครอบครัวของกามิน v2</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap');
 
@@ -395,15 +395,36 @@
 
         ctx.save();
         ctx.translate(center, center);
-        ctx.rotate(start + arc / 2);
-        ctx.textAlign = "right";
+
+        // Put each name safely inside its slice. Keep the text upright so Thai
+        // characters remain easy to read on smaller iPhone screens.
+        const mid = start + arc / 2;
+        const textRadius = radius * 0.64;
+        const tx = Math.cos(mid) * textRadius;
+        const ty = Math.sin(mid) * textRadius;
+        ctx.translate(tx, ty);
+
+        let textAngle = mid + Math.PI / 2;
+        if (textAngle > Math.PI / 2 && textAngle < Math.PI * 1.5) {
+          textAngle += Math.PI;
+        }
+        ctx.rotate(textAngle);
+
+        ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#2d3436";
-        const fontSize = Math.max(24, Math.min(40, 310 / Math.max(5, names.length)));
-        ctx.font = `700 ${fontSize}px "Mali", Tahoma, sans-serif`;
-        ctx.shadowColor = "rgba(255,255,255,.9)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(name, radius - 34, 0);
+        ctx.shadowColor = "rgba(255,255,255,.95)";
+        ctx.shadowBlur = 5;
+
+        let fontSize = Math.max(22, Math.min(38, 300 / Math.max(5, names.length)));
+        const maxWidth = Math.max(95, radius * 0.42);
+        do {
+          ctx.font = `700 ${fontSize}px "Mali", Tahoma, sans-serif`;
+          if (ctx.measureText(name).width <= maxWidth || fontSize <= 18) break;
+          fontSize -= 1;
+        } while (fontSize > 18);
+
+        ctx.fillText(name, 0, 0);
         ctx.restore();
       });
 
